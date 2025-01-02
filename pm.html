@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Tool</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        .client-select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+        }
+
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav button {
+            padding: 10px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav button:hover {
+            background: var(--secondary);
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 4px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .task input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .notes {
+            width: 100%;
+            min-height: 100px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: var(--accent);
+            color: white;
+        }
+
+        .history-entry {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid var(--accent);
+            position: relative;
+        }
+
+        .history-entry button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--danger);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Diario di bordo Project Management</h1>
+            <select id="clientSelect" class="client-select">
+                <option value="">Seleziona Cliente</option>
+            </select>
+            <div class="button-group">
+                <button onclick="app.addClient()">Aggiungi Cliente</button>
+                <button onclick="app.removeClient()">Rimuovi Cliente</button>
+            </div>
+        </header>
+
+        <nav class="nav">
+            <button onclick="app.switchSection('project')">Progetto</button>
+            <button onclick="app.switchSection('startup')">Startup</button>
+            <button onclick="app.switchSection('milestones')">Milestone</button>
+            <button onclick="app.switchSection('sal')">SAL</button>
+            <button onclick="app.switchSection('closure')">Chiusura</button>
+            <button onclick="app.switchSection('assistance')">Assistenza</button>
+            <button onclick="app.switchSection('history')">Storico</button>
+        </nav>
+
+        <main>
+            <div id="project" class="section">
+                <h2>Gestione Progetto</h2>
+                <div id="projectChecklist"></div>
+                <textarea id="projectNotes" class="notes" placeholder="Note del progetto..."></textarea>
+                <div class="button-group">
+                    <button onclick="app.saveNotes('project')">Salva Note</button>
+                    <button onclick="app.saveLog('project')">Salva Log</button>
+                </div>
+            </div>
+
+            <div id="startup" class="section">
+                <h2>Startup</h2>
+                <div id="startupChecklist"></div>
+                <textarea id="startupNotes" class="notes" placeholder="Note di startup..."></textarea>
+                <div class="button-group">
+                    <button onclick="app.saveNotes('startup')">Salva Note</button>
+                    <button onclick="app.saveLog('startup')">Salva Log</button>
+                </div>
+            </div>
+
+            <div id="milestones" class="section">
+                <h2>Milestone</h2>
+                <div id="milestonesChecklist"></div>
+                <textarea id="milestonesNotes" class="notes" placeholder="Note milestone..."></textarea>
+                <div class="button-group">
+                    <button onclick="app.saveNotes('milestones')">Salva Note</button>
+                    <button onclick="app.saveLog('milestones')">Salva Log</button>
+                </div>
+            </div>
+
+            <div id="sal" class="section">
+                <h2>SAL</h2>
+                <div id="salChecklist"></div>
+                <textarea id="salNotes" class="notes" placeholder="Note SAL..."></textarea>
+                <div class="button-group">
+                    <button onclick="app.saveNotes('sal')">Salva Note</button>
+                    <button onclick="app.saveLog('sal')">Salva Log</button>
+                </div>
+            </div>
+
+            <div id="closure" class="section">
+                <h2>Chiusura</h2>
+                <div id="closureChecklist"></div>
+                <textarea id="closureNotes" class="notes" placeholder="Note di chiusura..."></textarea>
+                <div class="button-group">
+                    <button onclick="app.saveNotes('closure')">Salva Note</button>
+                    <button onclick="app.saveLog('closure')">Salva Log</button>
+                </div>
+            </div>
+
+            <div id="assistance" class="section">
+                <h2>Assistenza</h2>
+                <div id="assistanceChecklist"></div>
+                <textarea id="assistanceNotes" class="notes" placeholder="Note di assistenza..."></textarea>
+                <div class="button-group">
+                    <button onclick="app.saveNotes('assistance')">Salva Note</button>
+                    <button onclick="app.saveLog('assistance')">Salva Log</button>
+                </div>
+            </div>
+
+            <div id="history" class="section">
+                <h2>Storico</h2>
+                <div id="historyContainer"></div>
+                <div class="button-group">
+                    <button onclick="app.exportLogs()">Esporta Log</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        class ProjectManager {
+            constructor() {
+                this.currentClient = '';
+                this.projectTasks = {
+                    project: [
+                        { id: 'p1', text: 'Creare progetto in Jira', completed: false },
+                        { id: 'p2', text: 'Configurare impostazioni di base', completed: false }
+                    ],
+                    startup: [
+                        { id: 's1', text: 'Inviare email di inizio progetto', completed: false },
+                        { id: 's2', text: 'Organizzare Kickoff di progetto', completed: false }
+                    ],
+                    milestones: [
+                        { id: 'm1', text: 'Definire milestone principali', completed: false },
+                        { id: 'm2', text: 'Concordare le date con il cliente', completed: false }
+                    ],
+                    sal: [
+                        { id: 'sal1', text: 'Aggiornare stato attività in corso', completed: false },
+                        { id: 'sal2', text: 'Preparare report di avanzamento', completed: false }
+                    ],
+                    closure: [
+                        { id: 'c1', text: 'Concludere task pendenti', completed: false },
+                        { id: 'c2', text: 'Preparare documentazione di chiusura', completed: false }
+                    ],
+                    assistance: [
+                        { id: 'a1', text: 'Risolvere ticket aperti', completed: false },
+                        { id: 'a2', text: 'Aggiornare manuale utente', completed: false }
+                    ]
+                };
+
+                this.initializeEventListeners();
+                this.loadClients();
+                this.switchSection('project');
+            }
+
+            initializeEventListeners() {
+                document.getElementById('clientSelect').addEventListener('change', (e) => {
+                    this.currentClient = e.target.value;
+                    if (this.currentClient) {
+                        const clientData = this.getClientStorage(this.currentClient);
+                        this.loadClientData(clientData);
+                        this.switchSection('project');
+                    }
+                });
+            }
+
+            getClientStorage(client) {
+                const storageKey = `client_${client}`;
+                const storage = localStorage.getItem(storageKey);
+                return storage ? JSON.parse(storage) : {
+                    tasks: JSON.parse(JSON.stringify(this.projectTasks)),
+                    notes: {},
+                    logs: []
+                };
+            }
+
+            saveClientStorage(client, data) {
+                const storageKey = `client_${client}`;
+                localStorage.setItem(storageKey, JSON.stringify(data));
+            }
+
+            loadClientData(clientData) {
+                Object.keys(clientData.tasks).forEach(section => {
+                    this.projectTasks[section] = clientData.tasks[section];
+                });
+
+                Object.keys(clientData.notes).forEach(section => {
+                    const notesTextarea = document.getElementById(`${section}Notes`);
+                    if (notesTextarea) {
+                        notesTextarea.value = clientData.notes[section] || '';
+                    }
+                });
+
+                this.renderCurrentSection();
+            }
+
+            switchSection(sectionId) {
+                document.querySelectorAll('.section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                }
+
+                if (sectionId === 'history') {
+                    this.renderHistory();
+                } else {
+                    this.renderChecklist(sectionId);
+                }
+            }
+
+            renderChecklist(section) {
+                const container = document.getElementById(`${section}Checklist`);
+                if (!container) return;
+
+                const tasks = this.projectTasks[section] || [];
+                container.innerHTML = tasks.map(task => `
+                    <div class="task">
+                        <input type="checkbox" id="${task.id}" 
+                               ${task.completed ? 'checked' : ''}
+                               onchange="app.toggleTask('${section}', '${task.id}')">
+                        <label for="${task.id}">${task.text}</label>
+                    </div>
+                `).join('');
+            }
+
+            renderCurrentSection() {
+                const activeSection = document.querySelector('.section[style*="block"]');
+                if (activeSection) {
+                    const sectionId = activeSection.id;
+                    if (sectionId === 'history') {
+                        this.renderHistory();
+                    } else {
+                        this.renderChecklist(sectionId);
+                    }
+                }
+            }
+
+            toggleTask(section, taskId) {
+                const task = this.projectTasks[section].find(t => t.id === taskId);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.saveState();
+                    this.renderChecklist(section);
+                }
+            }
+
+            saveState() {
+                if (!this.currentClient) return;
+
+                const clientData = this.getClientStorage(this.currentClient);
+                clientData.tasks = this.projectTasks;
+                this.saveClientStorage(this.currentClient, clientData);
+            }
+
+            saveNotes(section) {
+                if (!this.currentClient) {
+                    alert('Seleziona un cliente prima di salvare le note.');
+                    return;
+                }
+
+                const notesTextarea = document.getElementById(`${section}Notes`);
+                const clientData = this.getClientStorage(this.currentClient);
+                clientData.notes[section] = notesTextarea.value;
+                this.saveClientStorage(this.currentClient, clientData);
+                alert('Note salvate con successo!');
+            }
+
+            saveLog(section) {
+                if (!this.currentClient) {
+                    alert('Seleziona un cliente prima di salvare il log.');
+                    return;
+                }
+
+                const clientData = this.getClientStorage(this.currentClient);
+                const tasks = this.projectTasks[section] || [];
+                const completedTasks = tasks.filter(task => task.completed);
+                const notes = document.getElementById(`${section}Notes`).value;
+                const clientName = document.querySelector(`#clientSelect option[value="${this.currentClient}"]`).text;
+
+                completedTasks.forEach(task => {
+                    clientData.logs.push({
+                        client: clientName,
+                        section,
+                        task: task.text,
+                        notes: notes || 'Nessuna nota',
+                        date: new Date().toLocaleString()
+                    });
+                });
+
+                this.saveClientStorage(this.currentClient, clientData);
+                alert('Log salvati con successo!');
+            }
+
+            renderHistory() {
+                if (!this.currentClient) {
+                    document.getElementById('historyContainer').innerHTML = 
+                        '<p>Seleziona un cliente per visualizzare lo storico.</p>';
+                    return;
+                }
+
+                const clientData = this.getClientStorage(this.currentClient);
+                const historyContainer = document.getElementById('historyContainer');
+                historyContainer.innerHTML = '';
+
+                if (clientData.logs.length === 0) {
+                    historyContainer.innerHTML = '<p>Nessun log salvato per questo cliente.</p>';
+                    return;
+                }
+
+                historyContainer.innerHTML = clientData.logs.map((log, index) => `
+                    <div class="history-entry">
+                        <strong>Cliente:</strong> ${log.client}<br>
+                        <strong>Sezione:</strong> ${log.section}<br>
+                        <strong>Task:</strong> ${log.task}<br>
+                        <strong>Note:</strong> ${log.notes}<br>
+                        <strong>Data:</strong> ${log.date}
+                        <button onclick="app.deleteLog(${index})">Elimina</button>
+                    </div>
+                `).join('');
+            }
+
+            deleteLog(index) {
+                if (!this.currentClient) return;
+
+                const clientData = this.getClientStorage(this.currentClient);
+                clientData.logs.splice(index, 1);
+                this.saveClientStorage(this.currentClient, clientData);
+                this.renderHistory();
+            }
+
+            exportLogs() {
+                if (!this.currentClient) {
+                    alert('Seleziona un cliente prima di esportare i log.');
+                    return;
+                }
+
+                const clientData = this.getClientStorage(this.currentClient);
+                if (clientData.logs.length === 0) {
+                    alert('Nessun log da esportare per questo cliente.');
+                    return;
+                }
+
+                const blob = new Blob([JSON.stringify(clientData.logs, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `project_logs_${this.currentClient}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            addClient() {
+                const clientName = prompt('Inserisci il nome del nuovo cliente:');
+                if (clientName && clientName.trim() !== '') {
+                    const clientSelect = document.getElementById('clientSelect');
+                    const option = document.createElement('option');
+                    option.value = clientName;
+                    option.text = clientName;
+                    clientSelect.add(option);
+                    this.saveClients();
+                    alert('Cliente aggiunto con successo!');
+                } else {
+                    alert('Il nome del cliente non può essere vuoto.');
+                }
+            }
+
+            removeClient() {
+                const clientSelect = document.getElementById('clientSelect');
+                const clientName = clientSelect.value;
+                if (clientName && confirm(`Sei sicuro di voler rimuovere il cliente ${clientName}?`)) {
+                    localStorage.removeItem(`client_${clientName}`);
+                    clientSelect.remove(clientSelect.selectedIndex);
+                    this.currentClient = '';
+                    this.saveClients();
+                    this.switchSection('project');
+                    alert('Cliente rimosso con successo!');
+                }
+            }
+
+            saveClients() {
+                const clientSelect = document.getElementById('clientSelect');
+                const clients = Array.from(clientSelect.options)
+                    .map(option => option.value)
+                    .filter(value => value.trim() !== '');
+                localStorage.setItem('clients', JSON.stringify(clients));
+            }
+
+            loadClients() {
+                const clients = JSON.parse(localStorage.getItem('clients')) || [];
+                const clientSelect = document.getElementById('clientSelect');
+                clients.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client;
+                    option.text = client;
+                    clientSelect.add(option);
+                });
+            }
+        }
+
+        // Initialize app
+        const app = new ProjectManager();
+    </script>
+</body>
+</html>
